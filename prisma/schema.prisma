@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  firstname     String
+  lastname      String
+  middlename    String?
+  password      String
+  email         String         @unique
+  roles         Role[]
+  accounts      Account[]
+  loans         Loan[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
+}
+
+model Account {
+  id           Int           @id @default(autoincrement())
+  type         String
+  balance      Float
+  transactions Transaction[]
+  User         User?         @relation(fields: [userId], references: [id])
+  userId       Int?
+}
+
+model Role {
+  id          Int          @id @default(autoincrement())
+  name        String
+  description String?
+  users       User[]
+  permissions Permission[]
+}
+
+model Permission {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  roles       Role[]
+}
+
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  amount      Float
+  description String?
+  date        DateTime @default(now())
+  accountId   Int
+  Account     Account  @relation(fields: [accountId], references: [id])
+  Loan        Loan?    @relation(fields: [loanId], references: [id])
+  loanId      Int?
+}
+
+model Loan {
+  id              Int               @id @default(autoincrement())
+  amount          Float
+  interestRate    Float
+  status          String
+  borrowerId      Int
+  transactions    Transaction[]
+  LoanTransaction LoanTransaction[]
+  User            User?             @relation(fields: [userId], references: [id])
+  userId          Int?
+}
+
+model LoanTransaction {
+  id     Int      @id @default(autoincrement())
+  amount Float
+  date   DateTime @default(now())
+  loanId Int
+  Loan   Loan     @relation(fields: [loanId], references: [id])
+}
+
+model Notification {
+  id          Int      @id @default(autoincrement())
+  content     String
+  date        DateTime @default(now())
+  recipient   User?    @relation(fields: [recipientId], references: [id])
+  recipientId Int?
+}
+
+model AuditLog {
+  id            Int      @id @default(autoincrement())
+  method        String
+  url           String
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
+  transactionId String?
+  status        Int
+  responseTime  Float
+  timestamp     DateTime
+}
+
+// Add more models for additional features as needed
