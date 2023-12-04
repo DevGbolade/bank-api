@@ -1,4 +1,3 @@
-// src/controllers/user.controller.ts
 import { Controller, Post, Body, Param, Get, Put } from '@nestjs/common';
 import { ApiTags, ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,7 +18,7 @@ export class UserController {
   @Get(':id')
   @ApiOkResponse({ description: 'User retrieved successfully' })
   getUserById(@Param('id') userId: number) {
-    return this.userService.getUserById(userId);
+    return this.userService.getUserById(+userId);
   }
 
   @Put(':id')
@@ -28,6 +27,6 @@ export class UserController {
     @Param('id') userId: number,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.userService.updateUser(userId, updateUserDto);
+    return this.userService.updateUser(+userId, updateUserDto);
   }
 }

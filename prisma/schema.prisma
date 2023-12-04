@@ -25,12 +25,13 @@ model User {
 }
 
 model Account {
-  id           Int           @id @default(autoincrement())
-  type         String
-  balance      Float
-  transactions Transaction[]
-  User         User?         @relation(fields: [userId], references: [id])
-  userId       Int?
+  id            Int           @id @default(autoincrement())
+  type          AccountType
+  accountNumber String        @unique
+  balance       Float         @default(0)
+  transactions  Transaction[]
+  user          User?         @relation(fields: [userId], references: [id])
+  userId        Int?
 }
 
 model Role {
@@ -49,14 +50,17 @@ model Permission {
 }
 
 model Transaction {
-  id          Int      @id @default(autoincrement())
-  amount      Float
-  description String?
-  date        DateTime @default(now())
-  accountId   Int
-  Account     Account  @relation(fields: [accountId], references: [id])
-  Loan        Loan?    @relation(fields: [loanId], references: [id])
-  loanId      Int?
+  id              Int             @id @default(autoincrement())
+  amount          Float
+  type            TransactionType
+  description     String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @default(now()) @updatedAt
+  originAccountId Int?
+  accountId       Int
+  Account         Account         @relation(fields: [accountId], references: [id])
+  Loan            Loan?           @relation(fields: [loanId], references: [id])
+  loanId          Int?
 }
 
 model Loan {
@@ -97,6 +101,18 @@ model AuditLog {
   status        Int
   responseTime  Float
   timestamp     DateTime
+}
+
+enum AccountType {
+  SAVINGS
+  CURRENT
+}
+
+enum TransactionType {
+  CREDIT
+  DEBIT
+  LOAN_REPAYMENT
+  LOAN_DISBURSEMENT
 }
 
 // Add more models for additional features as needed
